@@ -61,11 +61,11 @@ namespace dynamic_programming
         std::vector<std::vector<size_t>> cache;
         public:
             LCS(std::string_view s1, std::string_view s2) noexcept
-            : m{s1.length() + 1}
-            , n{s2.length() + 1}
-            , s1{s1}
-            , s2{s2}
-            , cache(m, std::vector<size_t>(n, 0))
+                : m{s1.length() + 1}
+                , n{s2.length() + 1}
+                , s1{s1}
+                , s2{s2}
+                , cache(m, std::vector<size_t>(n, 0))
             {
                 for (auto i{1}; i < m; ++i)
                 {
