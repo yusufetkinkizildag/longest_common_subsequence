@@ -11,3 +11,6 @@ Credits
 [GeeksForGeeks](https://www.geeksforgeeks.org/printing-longest-common-subsequence/)
 
 [codeburps](https://www.codeburps.com/dsa/print-longest-common-subsequence)
+
+[wiki](https://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Reading_out_a_LCS)
+
