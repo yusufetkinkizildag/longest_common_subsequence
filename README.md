@@ -37,9 +37,55 @@ Calls the cmake and make to build and compile the source code
 A basic cmake file to specify C++ standard, build type and compile options
 
 ## longest_common_subsequence.cpp
+The algorithm first checks that if the compared strings are empty or not. If they at least one of them is empty, the algorithm returns/adds 0 or an empty string depending on the purpose of the function. Then if the pointed elements of the two strings are equal then the answer is the accumulated answer so far plus 1 (or plus the element if constructing the sequence itself)
 
-The alogrithm is 
+Let $$X = (x_1x_2\dots x_m)$$
+    $$Y = (y_1y_2\dots y_n)$$
+    $$X_i = (x_1x_2\dots x_i)$$
+    $$Y_j = (y_1y_2\dots y_j)$$
+    $$i \leq m$$
+    $$j \leq n$$
 
+$$ LCS(X_i, Y_j) =
+  \begin{cases}
+    \emptyset & \quad \text{if } X_i=\emptyset \text{ or } Y_j=\emptyset \\
+    LCS(X_{i-1}, Y_{j-1}) + 1  & \quad \text{if } x_i = y_j \\
+    max \\{ LCS(X_i, Y_{j-1}), \ LCS(X_{i-1}, Y_j) \\}  & \quad \text{if } x_i \neq y_j
+  \end{cases}
+$$
+
+|             | $\emptyset$ |      a      |      a      |      b      |      d      |      l      |      l      |      e      |      o      |      g      |
+|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
+| $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ | $\emptyset$ |
+|      a      | $\emptyset$ |      1      |      1      |      1      |      1      |      1      |      1      |      1      |      1      |      1      |
+|      z      | $\emptyset$ |      1      |      1      |      1      |      1      |      1      |      1      |      1      |      1      |      1      |
+|      b      | $\emptyset$ |      1      |      1      |      2      |      2      |      2      |      2      |      2      |      2      |      2      |
+|      a      | $\emptyset$ |      1      |      2      |      2      |      2      |      2      |      2      |      2      |      2      |      2      |
+|      s      | $\emptyset$ |      1      |      2      |      2      |      2      |      2      |      2      |      2      |      2      |      2      |
+|      d      | $\emptyset$ |      2      |      2      |      2      |      3      |      3      |      3      |      3      |      3      |      3      |
+|      l      | $\emptyset$ |      2      |      2      |      2      |      3      |      4      |      4      |      4      |      4      |      4      |
+|      l      | $\emptyset$ |      2      |      2      |      2      |      3      |      4      |      5      |      5      |      5      |      5      |
+|      g      | $\emptyset$ |      2      |      2      |      2      |      3      |      4      |      5      |      5      |      5      |      6      |
+|      n      | $\emptyset$ |      2      |      2      |      2      |      3      |      4      |      5      |      5      |      5      |      6      |
+|      e      | $\emptyset$ |      2      |      2      |      2      |      3      |      4      |      5      |      6      |      6      |      6      |
+
+There are 3 approaches to the problem.
+
+### Recursion
+The methods are in the `recursive` namespace. The first one `lcs_length` directly implements the formula above. It takes two strings by copy and copies them throughout the recursive calls. If the input strings are too long, the excessive and consecutive string copying may cause overflows.
+
+The second one is `lcs_sequence` is just like the first one but the difference is that it accumulates a string by concatenating the results from the recursive calls.
+While $\emptyset$ symbol in the formula corresponds to $0$ in `lcs_length`, it corresponds to "" in `lcs_sequence`. The $tr+1$ is changed to elements that gets compared and returned with the `s1.back()` expression in the code, which means get the last element of the string `s1`. Choosing the maximum length is modified to return the string that is longer than the other one. To retrieve the longer string, a lambda is constructed in place and called immediately after construction. The lambda calls the `length` functions of the strings to decide which one is longer.
+
+### Dynamic Programming
+The methods are in the `dynamic_programming` namespace. This namespace has one labmda and one class to solve the longest common subsequence problem. The labmda only returns the length of the subsequence's length but the `class LCS` can return both the length and the sequence itself.
+
+The lambda cosntructs a cache matrix to store the previous results and with that, the redundant computations are eliminated. It takes `string_view` objects to avoid copying of the strings. The complexity of the dynamic programming approach is $O\\{mn \\}$ in where the length of the strings are $m$ and $n$. The value of the $cache[i][j]$ depends on the compared elements. If the elements are the same than the value is $1 + cache[i - 1][j - 1]$. Else the value is the maximum of the two values from the same row but preceding column and preceding row and the same column. When all the values of the cache is filled, the length of the longest common subsequence is stored in the last column of the last row of the cache.
+
+`class LCS` has the same algorithm as the lambda in the same namspace. It also takes two string_view objects. The cache is stored in the class scope and filled in the constructor of the object. The `get_length()` function returns the value in the last column of the last row of the cache. `get_sequence()` function returns the sequence itself. The algorithms starts from the last column of the last row of the cache. The index variables (i and j) represents the indices of the characters to be compared. If the characters are the same, then the characters is appended to results string and both of the indexes are decremented. Else, if the value in the preceding row is greater than the value in the preceding column the i index is decremented. Other wise the j is decremented. Finally, the result string is returned.
+
+### Using stack
+This method is not working right now. It is marked as TODO!
 
 ## Compiler
 ```console
