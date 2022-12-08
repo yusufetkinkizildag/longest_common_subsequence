@@ -142,37 +142,68 @@ namespace dynamic_programming
 // not working yet
 namespace using_stack
 {
-    constexpr static auto lcs{[](std::string_view s1, std::string_view s2) noexcept
+    struct Frame
     {
-        std::stack<std::string_view> stack{};
-        stack.push(s1);
-        stack.push(s2);
-        int acc{0};
-        while (!stack.empty())
+        std::string_view s1;
+        std::string_view s2;
+        bool flag;
+        Frame(std::string_view s1, std::string_view s2, bool const flag) : s1{s1} , s2{s2}, flag{flag} {}
+        Frame()=default;
+    };
+    constexpr static auto aux{[](auto const s1, auto const s2) noexcept
+    {
+        if (!(s1.empty() || s2.empty()))
         {
-            std::string_view str2{stack.top()};
-            stack.pop();
-            std::string_view str1{stack.top()};
-            stack.pop();
-            if (!(str1.empty() || str2.empty()))
-            {
-                if (str1.back() == str2.back())
+                if (s1.back() == s2.back())
                 {
-                    ++acc;
-                    stack.push(std::string_view{str1.data(), str1.size() - 1});
-                    stack.push(std::string_view{str2.data(), str2.size() - 1});
+                    return std::vector<Frame>{Frame{std::string_view{s1.data(), s1.size() - 1}, std::string_view{s2.data(), s2.size() - 1}, true}};
                 }
                 else
                 {
-                    stack.push(std::string_view{str1.data(), str1.size() - 1});
-                    stack.push(std::string_view{str2});
-                    stack.push(std::string_view{str1});
-                    stack.push(std::string_view{str2.data(), str2.size() - 1});
+                    return std::vector<Frame>{Frame{std::string_view{s1.data(), s1.size() - 1}, s2, false},Frame{s1, std::string_view{s2.data(), s2.size() - 1}, false}};
+                }
+        }
+        return std::vector<Frame>{};
+    }};
+    constexpr static auto lcs{[](std::string_view s1, std::string_view s2) noexcept
+    {
+        std::stack<Frame> stack{};
+        unsigned int acc{0};
+        stack.push(Frame{s1, s2, s1.back() == s2.back()});
+        while (!stack.empty())
+        {
+            auto frame1{stack.top()};
+            stack.pop();
+            if (!frame1.flag)
+            {
+                auto const frame2{stack.top()};
+                stack.pop();
+                for (auto &&frame : aux(frame1.s1, frame1.s2))
+                {
+                    stack.push(frame);
+                }
+            }
+            else
+            {
+                auto const frames{aux(frame1.s1, frame1.s2)};
+                if (!frames.empty())
+                {
+                    if (1 == frames.size())
+                    {
+                        ++acc;
+                        stack.push(frames[0]);
+                    }
+                    else
+                    {
+                        stack.push(frames[0]);
+                        stack.push(frames[1]);
+                    }
                 }
             }
         }
         return acc;
     }};
+
 } // namespace using_stack
 
 int main(int argc, char const *argv[])
@@ -205,7 +236,7 @@ int main(int argc, char const *argv[])
     std::cout << std::endl;
 
     // Using Stack
-    // std::cout << using_stack::lcs(input3, input4) << std::endl;
+    std::cout << using_stack::lcs(input3, input4) << std::endl;
 
     return 0;
 }
